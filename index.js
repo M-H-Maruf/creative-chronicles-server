@@ -45,12 +45,12 @@ async function run() {
         // get recent blog data
         app.get('/blogs/recent', async (req, res) => {
             try {
-              const recentBlogs = await blogCollection.find().sort({ timestamp: -1 }).limit(6).toArray();
-              res.send(recentBlogs);
+                const recentBlogs = await blogCollection.find().sort({ timestamp: -1 }).limit(6).toArray();
+                res.send(recentBlogs);
             } catch (error) {
-              res.status(500).send({ message: error.message });
+                res.status(500).send({ message: error.message });
             }
-          });
+        });
 
         // get specific single blog data
         app.get('/blogs/:id', async (req, res) => {
@@ -58,17 +58,27 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const result = await blogCollection.findOne(query);
             res.send(result);
-          });
+        });
 
         // newsletter collection
         const newsletterCollection = creativeChroniclesDatabase.collection('newsletters');
-        
-        //post newsletter email
+
+        // post newsletter email
         app.post("/newsletters/subscribe", async (req, res) => {
             const email = req.body;
             const result = await newsletterCollection.insertOne(email);
             res.send(result);
-          });
+        });
+
+        // wishlist collection
+        const wishlistCollection = creativeChroniclesDatabase.collection('wishlist');
+
+        // CREATE BOOKING
+        app.post('/wishlist', async (req, res) => {
+            const blog = req.body;
+            const result = await wishlistCollection.insertOne(blog);
+            res.send(result);
+        });
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
