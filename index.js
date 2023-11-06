@@ -33,12 +33,24 @@ async function run() {
         const creativeChroniclesDatabase = client.db('creativeChronicles');
 
         // blogs collection
-        const blogCollection = creativeChroniclesDatabase.collection('blogs')
+        const blogCollection = creativeChroniclesDatabase.collection('blogs');
+
+        // get all blog data
         app.get('/blogs', async (req, res) => {
             const cursor = blogCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
+
+        // get recent blog data
+        app.get('/blogs/recent', async (req, res) => {
+            try {
+              const recentBlogs = await blogCollection.find().sort({ timestamp: -1 }).limit(6).toArray();
+              res.send(recentBlogs);
+            } catch (error) {
+              res.status(500).send({ message: error.message });
+            }
+          });
 
 
         // Send a ping to confirm a successful connection
