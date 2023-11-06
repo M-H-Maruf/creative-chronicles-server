@@ -52,6 +52,15 @@ async function run() {
             }
           });
 
+        // newsletter collection
+        const newsletterCollection = creativeChroniclesDatabase.collection('newsletters');
+        
+        //post newsletter email
+        app.post("/newsletters/subscribe", async (req, res) => {
+            const email = req.body;
+            const result = await newsletterCollection.insertOne(email);
+            res.send(result);
+          });
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
