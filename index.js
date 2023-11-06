@@ -37,10 +37,22 @@ async function run() {
 
         // get all blog data
         app.get('/blogs', async (req, res) => {
-            const cursor = blogCollection.find();
-            const result = await cursor.toArray();
-            res.send(result);
-        })
+            const category = req.query.category;
+        
+            try {
+                let query = {};
+        
+                if (category && category !== 'ALL') {
+                    query.category = category;
+                }
+        
+                const blogs = await blogCollection.find(query).toArray();
+                res.json(blogs);
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ message: 'Internal Server Error' });
+            }
+        });
 
         // get recent blog data
         app.get('/blogs/recent', async (req, res) => {
@@ -73,7 +85,7 @@ async function run() {
         // wishlist collection
         const wishlistCollection = creativeChroniclesDatabase.collection('wishlist');
 
-        // CREATE BOOKING
+        // add to wishlist
         app.post('/wishlist', async (req, res) => {
             const blog = req.body;
             const result = await wishlistCollection.insertOne(blog);
