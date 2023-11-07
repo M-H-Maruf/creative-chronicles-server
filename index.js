@@ -87,13 +87,13 @@ async function run() {
         app.put('/blogs/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
-      
+
             const updatedBlog = req.body;
-      
+
             const updateDoc = {
-              $set: {
-                ...updatedBlog,
-              },
+                $set: {
+                    ...updatedBlog,
+                },
             };
             const result = await blogCollection.updateOne(filter, updateDoc);
             res.send(result);
@@ -123,6 +123,16 @@ async function run() {
         app.post('/wishlist', async (req, res) => {
             const blog = req.body;
             const result = await wishlistCollection.insertOne(blog);
+            res.send(result);
+        });
+
+        // get user specific wishlist data
+        app.get('/wishlist', async (req, res) => {
+            const userEmail = req.query.email;
+            let query = {};
+            query.userEmail = userEmail;
+
+            const result = await wishlistCollection.find(query).toArray();
             res.send(result);
         });
 
