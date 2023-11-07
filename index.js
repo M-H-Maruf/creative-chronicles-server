@@ -27,7 +27,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-         client.connect();
+        client.connect();
 
         // creative chronicles database
         const creativeChroniclesDatabase = client.db('creativeChronicles');
@@ -38,14 +38,14 @@ async function run() {
         // get all blog data
         app.get('/blogs', async (req, res) => {
             const category = req.query.category;
-        
+
             try {
                 let query = {};
-        
+
                 if (category && category !== 'ALL') {
                     query.category = category;
                 }
-        
+
                 const blogs = await blogCollection.find(query).toArray();
                 res.json(blogs);
             } catch (error) {
@@ -92,10 +92,24 @@ async function run() {
             res.send(result);
         });
 
-        // wishlist collection
+        // comment collection
         const commentCollection = creativeChroniclesDatabase.collection('comments');
 
-        // add to wishlist
+        // get comments for the blog
+        app.get('/comments/:blogId', async (req, res) => {
+            const { blogId } = req.params;
+
+            try {
+                const comments = await commentCollection.find({ blogId: blogId })
+                    .sort({ timestamp: -1 }).toArray();
+                res.json(comments);
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+        });
+
+        // add comment
         app.post('/comments', async (req, res) => {
             const comment = req.body;
             const result = await commentCollection.insertOne(comment);
