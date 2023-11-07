@@ -110,7 +110,7 @@ async function run() {
         });
 
         // get featured blog
-        app.get('/blogs-featured', verifyToken, async (req, res) => {
+        app.get('/blogsFeatured', verifyToken, async (req, res) => {
             try {
                 const sortedBlogs = await blogCollection.find().sort({ descriptionLength: -1 }).limit(10).toArray();
                 res.json(sortedBlogs);
@@ -164,12 +164,14 @@ async function run() {
         });
 
         // get user specific wishlist data
-        app.get('/wishlist', verifyToken, async (req, res) => {
+        app.get('/wishlist', async (req, res) => {
             const userEmail = req.query.email;
+            console.log(userEmail);
             let query = {};
             query.userEmail = userEmail;
 
             const result = await wishlistCollection.find(query).toArray();
+            console.log(result);
             res.send(result);
         });
 
