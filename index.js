@@ -136,6 +136,14 @@ async function run() {
             res.send(result);
         });
 
+        // remove from wishlist
+        app.delete('/wishlist/:_id', async (req, res) => {
+            const _id = req.params._id;
+            const query = { _id: new ObjectId(_id) }
+            const result = await wishlistCollection.deleteOne(query);
+            res.send(result);
+        })
+
         // comment collection
         const commentCollection = creativeChroniclesDatabase.collection('comments');
 
