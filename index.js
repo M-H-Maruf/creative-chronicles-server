@@ -72,6 +72,22 @@ async function run() {
             res.send(result);
         });
 
+        // update specific single blog data
+        app.put('/blogs/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+      
+            const updatedBlog = req.body;
+      
+            const updateDoc = {
+              $set: {
+                ...updatedBlog,
+              },
+            };
+            const result = await blogCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
         // add blog
         app.post('/blogs', async (req, res) => {
             const newBlog = req.body;
