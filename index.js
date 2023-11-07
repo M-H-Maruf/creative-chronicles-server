@@ -1,6 +1,8 @@
 // imports
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
@@ -9,8 +11,30 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // necessary middlewares
-app.use(cors());
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'https://m-h-maruf-creative-chronicles.surge.sh',
+    ],
+    credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
+
+const verifyToken = (req, res, next) =>{
+    const token = req?.cookies?.token;
+    if(!token){
+        return res.status(401).send({message: 'unauthorized access'})
+    }
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) =>{
+        if(err){
+            return res.status(401).send({message: 'unauthorized access'})
+        }
+        req.user = decoded;
+        next();
+    })
+}
+
 
 // mongodb
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.cyycawz.mongodb.net/?retryWrites=true&w=majority`;
@@ -32,11 +56,24 @@ async function run() {
         // creative chronicles database
         const creativeChroniclesDatabase = client.db('creativeChronicles');
 
+        // auth related api
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'none'
+            })
+                .send({ success: true, token:token });
+        })
+
         // blogs collection
         const blogCollection = creativeChroniclesDatabase.collection('blogs');
 
         // get all blog data
-        app.get('/blogs', async (req, res) => {
+        app.get('/blogs', verifyToken, async (req, res) => {
             const category = req.query.category;
 
             try {
