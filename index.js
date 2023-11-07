@@ -27,7 +27,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        // await client.connect();
+         client.connect();
 
         // creative chronicles database
         const creativeChroniclesDatabase = client.db('creativeChronicles');
@@ -89,6 +89,16 @@ async function run() {
         app.post('/wishlist', async (req, res) => {
             const blog = req.body;
             const result = await wishlistCollection.insertOne(blog);
+            res.send(result);
+        });
+
+        // wishlist collection
+        const commentCollection = creativeChroniclesDatabase.collection('comments');
+
+        // add to wishlist
+        app.post('/comments', async (req, res) => {
+            const comment = req.body;
+            const result = await commentCollection.insertOne(comment);
             res.send(result);
         });
 
