@@ -72,6 +72,13 @@ async function run() {
             res.send(result);
         });
 
+        // add blog
+        app.post('/blogs', async (req, res) => {
+            const newBlog = req.body;
+            const result = await blogCollection.insertOne(newBlog);
+            res.send(result);
+        });
+
         // newsletter collection
         const newsletterCollection = creativeChroniclesDatabase.collection('newsletters');
 
