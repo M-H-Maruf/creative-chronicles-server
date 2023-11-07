@@ -72,6 +72,17 @@ async function run() {
             res.send(result);
         });
 
+        // get featured blog
+        app.get('/blogs-featured', async (req, res) => {
+            try {
+                const sortedBlogs = await blogCollection.find().sort({ descriptionLength: -1 }).limit(10).toArray();
+                res.json(sortedBlogs);
+            } catch (error) {
+                console.error('Error fetching and sorting blogs:', error);
+                res.status(500).json({ error: 'Internal Server Error' });
+            }
+        });
+
         // update specific single blog data
         app.put('/blogs/:id', async (req, res) => {
             const id = req.params.id;
