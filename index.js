@@ -66,7 +66,7 @@ async function run() {
                 secure: true,
                 sameSite: 'none'
             })
-                .send({ success: true, token:token });
+                .send({ success: true});
         })
 
         // blogs collection
@@ -102,7 +102,7 @@ async function run() {
         });
 
         // get specific single blog data
-        app.get('/blogs/:id', async (req, res) => {
+        app.get('/blogs/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await blogCollection.findOne(query);
@@ -110,7 +110,7 @@ async function run() {
         });
 
         // get featured blog
-        app.get('/blogs-featured', async (req, res) => {
+        app.get('/blogs-featured', verifyToken, async (req, res) => {
             try {
                 const sortedBlogs = await blogCollection.find().sort({ descriptionLength: -1 }).limit(10).toArray();
                 res.json(sortedBlogs);
@@ -121,7 +121,7 @@ async function run() {
         });
 
         // update specific single blog data
-        app.put('/blogs/:id', async (req, res) => {
+        app.put('/blogs/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
 
@@ -137,7 +137,7 @@ async function run() {
         });
 
         // add blog
-        app.post('/blogs', async (req, res) => {
+        app.post('/blogs', verifyToken, async (req, res) => {
             const newBlog = req.body;
             const result = await blogCollection.insertOne(newBlog);
             res.send(result);
@@ -164,7 +164,7 @@ async function run() {
         });
 
         // get user specific wishlist data
-        app.get('/wishlist', async (req, res) => {
+        app.get('/wishlist', verifyToken, async (req, res) => {
             const userEmail = req.query.email;
             let query = {};
             query.userEmail = userEmail;
@@ -174,7 +174,7 @@ async function run() {
         });
 
         // remove from wishlist
-        app.delete('/wishlist/:_id', async (req, res) => {
+        app.delete('/wishlist/:_id', verifyToken, async (req, res) => {
             const _id = req.params._id;
             const query = { _id: new ObjectId(_id) }
             const result = await wishlistCollection.deleteOne(query);
@@ -185,7 +185,7 @@ async function run() {
         const commentCollection = creativeChroniclesDatabase.collection('comments');
 
         // get comments for the blog
-        app.get('/comments/:blogId', async (req, res) => {
+        app.get('/comments/:blogId', verifyToken, async (req, res) => {
             const { blogId } = req.params;
 
             try {
@@ -199,7 +199,7 @@ async function run() {
         });
 
         // add comment
-        app.post('/comments', async (req, res) => {
+        app.post('/comments', verifyToken, async (req, res) => {
             const comment = req.body;
             const result = await commentCollection.insertOne(comment);
             res.send(result);
