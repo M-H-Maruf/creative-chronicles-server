@@ -166,12 +166,10 @@ async function run() {
         // get user specific wishlist data
         app.get('/wishlist', async (req, res) => {
             const userEmail = req.query.email;
-            console.log(userEmail);
             let query = {};
             query.userEmail = userEmail;
 
             const result = await wishlistCollection.find(query).toArray();
-            console.log(result);
             res.send(result);
         });
 
