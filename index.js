@@ -21,14 +21,14 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-const verifyToken = (req, res, next) =>{
+const verifyToken = (req, res, next) => {
     const token = req?.cookies?.token;
-    if(!token){
-        return res.status(401).send({message: 'unauthorized access'})
+    if (!token) {
+        return res.status(401).send({ message: 'unauthorized access' })
     }
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) =>{
-        if(err){
-            return res.status(401).send({message: 'unauthorized access'})
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ message: 'unauthorized access' })
         }
         req.user = decoded;
         next();
@@ -66,7 +66,7 @@ async function run() {
                 secure: true,
                 sameSite: 'none'
             })
-                .send({ success: true});
+                .send({ success: true });
         })
 
         // blogs collection
@@ -164,10 +164,16 @@ async function run() {
         });
 
         // get user specific wishlist data
-        app.get('/wishlist', async (req, res) => {
+        app.get('/wishlist', verifyToken, async (req, res) => {
             const userEmail = req.query.email;
+            if (req.query.email !== req.user.email) {
+                return res.status(403).send({ message: 'forbidden access' })
+            }
+
             let query = {};
-            query.userEmail = userEmail;
+            if (userEmail) {
+                query.userEmail = userEmail;
+            }
 
             const result = await wishlistCollection.find(query).toArray();
             res.send(result);
